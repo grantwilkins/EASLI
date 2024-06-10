@@ -1,0 +1,9 @@
+job:
+  date: 2024-06-10
+  start_time: 15-27-34
+  details:
+    model_name: Llama-2-7b-chat-hf
+    batch_size: 32
+    hf_name: meta-llama/Llama-2-7b-chat-hf
+    num_gpus: 1
+    dataset: alpaca
