@@ -53,9 +53,14 @@ def tokenizer_pipeline(
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model_cpu_core = find_current_cpu_core()
     ctx.record(tag="model load")
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name, torch_dtype=torch.float16, device_map="auto"
+    )
+    model.generation_config.cache_implementation = "static"
+    compiled_model = torch.compile(model, mode="reduce-overhead", fullgraph=True)
     pipe = pipeline(
         "text-generation",
-        model=model_name,
+        model=compiled_model,
         torch_dtype=torch.float16,
         device_map="auto",
     )
