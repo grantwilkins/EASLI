@@ -54,11 +54,12 @@ def tokenizer_pipeline(
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model_cpu_core = find_current_cpu_core()
     ctx.record(tag="model load")
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name, torch_dtype=torch.float16, device_map="auto"
+    )
     pipe = pipeline(
         "text-generation",
-        model=model_name,
-        torch_dtype=torch.float16,
-        device_map="auto",
+        model=model,
     )
     return pipe, tokenizer, (tokenizer_cpu_core, model_cpu_core)
 
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     batch_size = args.batch_size
     out_dir = args.out_dir
     dataset = args.dataset
-    csv_file = f"hfkv-{model_name}-{num_gpus}.csv"
+    csv_file = f"optimum-{model_name}-{num_gpus}.csv"
 
     prompts = get_prompts(dataset)
 
