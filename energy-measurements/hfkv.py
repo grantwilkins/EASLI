@@ -22,7 +22,7 @@ from optimum.nvidia.pipelines import pipeline, Pipeline
 def get_prompts(dataset_name: str) -> list[tuple[str, str]]:
     if dataset_name == "alpaca":
         dataset = load_dataset("vicgalle/alpaca-gpt4")
-        lengths_instructions = [x for x in dataset["train"]["instructions"]]
+        lengths_instructions = [x for x in dataset["train"]["instruction"]]
         lengths_inputs = [x for x in dataset["train"]["input"]]
         lengths_outputs = [x for x in dataset["train"]["output"]]
         lengths = [x + y for x, y in zip(lengths_instructions, lengths_inputs)]
