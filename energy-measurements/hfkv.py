@@ -1,4 +1,4 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, Pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 from pyJoules.energy_meter import EnergyContext
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
@@ -16,6 +16,7 @@ import numpy as np
 from scipy import stats
 import subprocess
 from datasets import load_dataset
+from optimum.nvidia.pipelines import pipeline, Pipeline
 
 
 def get_prompts(dataset_name: str) -> list[tuple[str, str]]:
@@ -53,14 +54,9 @@ def tokenizer_pipeline(
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model_cpu_core = find_current_cpu_core()
     ctx.record(tag="model load")
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name, torch_dtype=torch.float16, device_map="auto"
-    )
-    model.generation_config.cache_implementation = "static"
-    compiled_model = torch.compile(model, mode="reduce-overhead", fullgraph=True)
     pipe = pipeline(
         "text-generation",
-        model=compiled_model,
+        model=model_name,
         torch_dtype=torch.float16,
         device_map="auto",
     )
@@ -170,6 +166,7 @@ if __name__ == "__main__":
             start_tag=f"start-inference-{iteration}",
         ) as ctx:
             cpu_core = find_current_cpu_core()
+
             token_limit = len(tokenizer.encode(output))
             llm_output = run_inference(
                 pipe=pipe,
