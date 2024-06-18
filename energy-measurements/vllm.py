@@ -15,53 +15,39 @@ import time
 import numpy as np
 from scipy import stats
 import subprocess
+from vllm import LLM, SamplingParams
+from datasets import load_dataset
 
 
 def find_current_cpu_core():
     return psutil.Process().cpu_num()
 
 
-def tokenizer_pipeline(
-    model_name: str,
-    ctx: EnergyContext,
-) -> tuple[Pipeline, AutoTokenizer, tuple[int, int]]:
-    tokenizer_cpu_core = find_current_cpu_core()
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model_cpu_core = find_current_cpu_core()
-    ctx.record(tag="model load")
-    pipe = pipeline(
-        "text-generation",
-        model=model_name,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-    )
-    return pipe, tokenizer, (tokenizer_cpu_core, model_cpu_core)
+def get_prompts(dataset_name: str) -> list[tuple[str, str]]:
+    if dataset_name == "alpaca":
+        dataset = load_dataset("vicgalle/alpaca-gpt4")
+        lengths_instructions = [x for x in dataset["train"]["instruction"]]
+        lengths_inputs = [x for x in dataset["train"]["input"]]
+        lengths_outputs = [x for x in dataset["train"]["output"]]
+        lengths = [x + y for x, y in zip(lengths_instructions, lengths_inputs)]
+    elif dataset_name == "self-oss":
+        dataset = load_dataset("bigcode/self-oss-instruct-sc2-exec-filter-50k")
+        lengths = [x for x in dataset["train"]["prompt"]]
+        lengths_outputs = [x for x in dataset["train"]["response"]]
+    elif dataset_name == "orca":
+        dataset = load_dataset("pankajmathur/WizardLM_Orca")
+        lengths_systems = [x for x in dataset["train"]["system"]]
+        lengths_instruction = [x for x in dataset["train"]["instruction"]]
+        lengths_outputs = [x for x in dataset["train"]["output"]]
+        lengths = [x + y for x, y in zip(lengths_systems, lengths_instruction)]
+    else:
+        raise ValueError("Invalid dataset name")
 
-
-def run_inference(
-    pipe: Pipeline,
-    num_tokens: int,
-    prompt: str,
-    batch_size: int,
-) -> str:
-    sequences = pipe(
-        prompt,
-        do_sample=True,
-        max_new_tokens=num_tokens,
-        min_new_tokens=int(num_tokens * 0.9),
-        temperature=0.7,
-        top_k=50,
-        top_p=0.95,
-        num_return_sequences=1,
-        batch_size=batch_size,
-        use_cache=False,
-    )
-    return sequences[0]["generated_text"]
+    return list(zip(lengths, lengths_outputs))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--num_tokens", type=int, default=256)
     parser.add_argument("--hf_name", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--out_dir", type=str, default=".")
@@ -72,13 +58,12 @@ if __name__ == "__main__":
     todays_date = datetime.date.today().strftime("%Y-%m-%d")
     num_gpus = torch.cuda.device_count()
     hf_name = args.hf_name
-    model_name = hf_name.split("/")[1]
-    num_tokens = args.num_tokens
+    model_name = hf_name.split("/")[-1]
     batch_size = args.batch_size
     system_name = args.system_name
     out_dir = args.out_dir
     dataset = args.dataset
-
+    csv_file = f"vllm-{model_name}-{num_gpus}.csv"
     pandas_handle = PandasHandler()
     if out_dir == ".":
         start_time = datetime.datetime.now().strftime("%H-%M-%S")
@@ -97,33 +82,35 @@ if __name__ == "__main__":
         file.write(f"  start_time: {start_time}\n")
         file.write("  details:\n")
         file.write(f"    model_name: {model_name}\n")
-        file.write(f"    system_name: {system_name}\n")
-        file.write(f"    num_tokens: {num_tokens}\n")
         file.write(f"    batch_size: {batch_size}\n")
         file.write(f"    hf_name: {hf_name}\n")
         file.write(f"    num_gpus: {num_gpus}\n")
         file.write(f"    dataset: {dataset}\n")
+
+    prompts = get_prompts(dataset)
 
     with EnergyContext(
         handler=pandas_handle,
         domains=domains,
         start_tag="tokenizer",
     ) as ctx:
-        pipe, tokenizer, (tokenizer_core, pipeline_core) = tokenizer_pipeline(
-            hf_name, ctx
-        )
-    # profile_tokenizer.stop_profiling(proc=profile_tokenizer_proc)
+        tokenizer_core = find_current_cpu_core()
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        pipeline_core = find_current_cpu_core()
+        ctx.record(tag="model load")
+        llm = LLM(model_name)
+
     df = pandas_handle.get_dataframe()
-    df["Max Number of Tokens"] = num_tokens
-    df["Input Tokens"] = 0
+    df["Number of Input Tokens"] = 0
     df["Iteration"] = 0
     df["Model Name"] = model_name
     df["Number of GPUs"] = num_gpus
     df["Prompt"] = "startup"
-    df["Output Tokens"] = 0
+    df["Number of Output Tokens"] = 0
+    df["Total Number of Tokens"] = 0
     df["Batch Size"] = batch_size
-    df["System Name"] = system_name
     df["CPU Core"] = [tokenizer_core, pipeline_core]
+    df["Serving Method"] = "vLLM"
     for idx_gpus in range(num_gpus):
         df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
             "memory.total"
@@ -138,63 +125,45 @@ if __name__ == "__main__":
         index=False,
     )
 
-    for idx, prompt in prompts.items():
-        runtimes = []
-        for iteration in range(100):
-            pandas_handle = PandasHandler()
-            idx_log = (idx, iteration)
-            with EnergyContext(
-                handler=pandas_handle,
-                domains=domains,
-                start_tag=f"start-inference-{idx_log[0]}-{idx_log[1]}",
-            ) as ctx:
-                cpu_core = find_current_cpu_core()
-                inference_start = time.time()
-                llm_output = run_inference(
-                    pipe=pipe,
-                    num_tokens=num_tokens,
-                    prompt=prompt,
-                    batch_size=batch_size,
-                )
-                inference_end = time.time()
-                inference_runtime = inference_end - inference_start
-            # print(llm_output)
-            # profile_inference.stop_profiling(proc=profile_inference_proc)
-            input_tokens = tokenizer.encode(prompt)
-            num_input_tokens = len(input_tokens)
-            output_tokens = tokenizer.encode(llm_output)
-            num_output_tokens = len(output_tokens)
-            df = pandas_handle.get_dataframe()
-            df["Max Number of Tokens"] = num_tokens
-            df["Input Tokens"] = num_input_tokens
-            df["Iteration"] = iteration
-            df["Model Name"] = model_name
-            df["Number of GPUs"] = num_gpus
-            df["Prompt"] = prompt[:50].strip()
-            df["Output Tokens"] = num_output_tokens
-            df["Batch Size"] = batch_size
-            df["System Name"] = system_name
-            df["CPU Core"] = cpu_core
-            for idx_gpus in range(num_gpus):
-                df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
-                    "memory.total"
-                )["gpu"][idx_gpus]["fb_memory_usage"]["total"]
-                df[f"Used Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
-                    "memory.used"
-                )["gpu"][idx_gpus]["fb_memory_usage"]["used"]
-            torch.cuda.empty_cache()
-            df.to_csv(
-                f"{model_name}-{args.system_name}-{num_gpus}.csv",
-                mode="a",
-                header=False,
-                index=False,
+    for iteration, (input, output) in enumerate(prompts):
+        pandas_handle = PandasHandler()
+        with EnergyContext(
+            handler=pandas_handle,
+            domains=domains,
+            start_tag=f"start-inference-{iteration}",
+        ) as ctx:
+            cpu_core = find_current_cpu_core()
+            token_limit = len(tokenizer.encode(output))
+            sampling_params = SamplingParams(
+                temperature=0.7, top_k=50, top_p=0.95, max_tokens=token_limit
             )
-            if iteration > 0:
-                runtimes.append(inference_runtime)
-            mean_runtime = np.mean(runtimes)
-            std_err = stats.sem(runtimes)
-            z_critical = stats.norm.ppf((1 + 0.95) / 2)
-            ci_half_width = z_critical * std_err
-            # Break if we have more than 5 samples and the confidence interval half-width is less than 0.5
-            if iteration > 5 and ci_half_width < 0.5:
-                break
+            llm_output = llm.generate(input, sampling_params)
+
+        input_tokens = tokenizer.encode(input)
+        num_input_tokens = len(input_tokens)
+        output_tokens = tokenizer.encode(llm_output)
+        num_output_tokens = len(output_tokens)
+        df = pandas_handle.get_dataframe()
+        df["Number of Input Tokens"] = num_input_tokens
+        df["Iteration"] = iteration
+        df["Model Name"] = model_name
+        df["Number of GPUs"] = num_gpus
+        df["Prompt"] = input[:10].strip()
+        df["Number of Output Tokens"] = num_output_tokens - num_input_tokens
+        df["Total Number of Tokens"] = num_output_tokens
+        df["Batch Size"] = batch_size
+        df["CPU Core"] = cpu_core
+        df["Serving Method"] = "vLLM"
+        for idx_gpus in range(num_gpus):
+            df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
+                "memory.total"
+            )["gpu"][idx_gpus]["fb_memory_usage"]["total"]
+            df[f"Used Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
+                "memory.used"
+            )["gpu"][idx_gpus]["fb_memory_usage"]["used"]
+        df.to_csv(
+            csv_file,
+            mode="a",
+            header=False,
+            index=False,
+        )
