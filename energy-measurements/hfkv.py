@@ -1,4 +1,4 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, Pipeline
 import torch
 from pyJoules.energy_meter import EnergyContext
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
@@ -16,7 +16,6 @@ import numpy as np
 from scipy import stats
 import subprocess
 from datasets import load_dataset
-from optimum.nvidia.pipelines import pipeline, Pipeline
 
 
 def get_prompts(dataset_name: str) -> list[tuple[str, str]]:
@@ -26,10 +25,10 @@ def get_prompts(dataset_name: str) -> list[tuple[str, str]]:
         lengths_inputs = [x for x in dataset["train"]["input"]]
         lengths_outputs = [x for x in dataset["train"]["output"]]
         lengths = [x + y for x, y in zip(lengths_instructions, lengths_inputs)]
-    elif dataset_name == "arxiv-math":
-        dataset = load_dataset("ArtifactAI/arxiv-math-instruct-50k")
-        lengths = [x for x in dataset["train"]["question"]]
-        lengths_outputs = [x for x in dataset["train"]["answer"]]
+    elif dataset_name == "self-oss":
+        dataset = load_dataset("bigcode/self-oss-instruct-sc2-exec-filter-50k")
+        lengths = [x for x in dataset["train"]["prompt"]]
+        lengths_outputs = [x for x in dataset["train"]["response"]]
     elif dataset_name == "orca":
         dataset = load_dataset("pankajmathur/WizardLM_Orca")
         lengths_systems = [x for x in dataset["train"]["system"]]
@@ -54,27 +53,26 @@ def tokenizer_pipeline(
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model_cpu_core = find_current_cpu_core()
     ctx.record(tag="model load")
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name, torch_dtype=torch.float16, device_map="auto"
-    )
     pipe = pipeline(
         "text-generation",
-        model=model,
+        model=model_name,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
     )
     return pipe, tokenizer, (tokenizer_cpu_core, model_cpu_core)
 
 
 def run_inference(
     pipe: Pipeline,
-    max_new_tokens: int,
+    num_tokens: int,
     prompt: str,
     batch_size: int,
 ) -> str:
     sequences = pipe(
         prompt,
         do_sample=True,
-        max_new_tokens=max_new_tokens,
-        min_new_tokens=int(max_new_tokens * 0.9),
+        max_new_tokens=num_tokens,
+        min_new_tokens=int(num_tokens * 0.9),
         temperature=0.7,
         top_k=50,
         top_p=0.95,
@@ -100,7 +98,7 @@ if __name__ == "__main__":
     batch_size = args.batch_size
     out_dir = args.out_dir
     dataset = args.dataset
-    csv_file = f"optimum-{model_name}-{num_gpus}.csv"
+    csv_file = f"hfkv-{model_name}-{num_gpus}.csv"
 
     prompts = get_prompts(dataset)
 
@@ -167,7 +165,6 @@ if __name__ == "__main__":
             start_tag=f"start-inference-{iteration}",
         ) as ctx:
             cpu_core = find_current_cpu_core()
-
             token_limit = len(tokenizer.encode(output))
             llm_output = run_inference(
                 pipe=pipe,
@@ -189,6 +186,7 @@ if __name__ == "__main__":
         df["Total Number of Tokens"] = num_output_tokens
         df["Batch Size"] = batch_size
         df["CPU Core"] = cpu_core
+        df["Serving Method"] = "HF Key-Value"
         for idx_gpus in range(num_gpus):
             df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
                 "memory.total"

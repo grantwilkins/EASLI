@@ -1,4 +1,4 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoTokenizer
 import torch
 from pyJoules.energy_meter import EnergyContext
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
@@ -16,7 +16,9 @@ import numpy as np
 from scipy import stats
 import subprocess
 from datasets import load_dataset
-import mii
+from optimum.nvidia import AutoModelForCausalLM
+
+# from optimum.nvidia.pipelines import pipeline, Pipeline
 
 
 def get_prompts(dataset_name: str) -> list[tuple[str, str]]:
@@ -62,7 +64,7 @@ if __name__ == "__main__":
     batch_size = args.batch_size
     out_dir = args.out_dir
     dataset = args.dataset
-    csv_file = f"mii-{model_name}-{num_gpus}.csv"
+    csv_file = f"optimum-{model_name}-{num_gpus}.csv"
 
     prompts = get_prompts(dataset)
 
@@ -97,8 +99,10 @@ if __name__ == "__main__":
         tokenizer_core = find_current_cpu_core()
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         pipeline_core = find_current_cpu_core()
-        ctx.record(tag="pipeline load")
-        pipe = mii.pipeline(model_name)
+        ctx.record(tag="model load")
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name, max_batch_size=batch_size
+        )
 
     df = pandas_handle.get_dataframe()
     df["Number of Input Tokens"] = 0
@@ -109,7 +113,7 @@ if __name__ == "__main__":
     df["Number of Output Tokens"] = 0
     df["Batch Size"] = batch_size
     df["CPU Core"] = [tokenizer_core, pipeline_core]
-    df["Serving Method"] = "DeepSpeed-MII"
+    df["Serving Strategy"] = "Optimum"
     for idx_gpus in range(num_gpus):
         df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
             "memory.total"
@@ -133,29 +137,27 @@ if __name__ == "__main__":
         ) as ctx:
             cpu_core = find_current_cpu_core()
             token_limit = len(tokenizer.encode(output))
-            response = pipe(
-                [input],
-                max_new_tokens=token_limit,
-                top_p=0.95,
-                temperature=0.7,
+            tokens = tokenizer(input, padding=True, return_tensors="pt")
+            generated, lengths = model.generate(
+                **tokens,
                 top_k=50,
+                top_p=0.95,
+                max_new_tokens=token_limit,
             )
-            llm_output = response[0]
         input_tokens = tokenizer.encode(input)
         num_input_tokens = len(input_tokens)
-        output_tokens = tokenizer.encode(llm_output)
-        num_output_tokens = len(output_tokens)
+        num_output_tokens = len(generated[0])
         df = pandas_handle.get_dataframe()
         df["Number of Input Tokens"] = num_input_tokens
         df["Iteration"] = iteration
         df["Model Name"] = model_name
         df["Number of GPUs"] = num_gpus
         df["Prompt"] = input[:10].strip()
-        df["Number of Output Tokens"] = num_output_tokens - num_input_tokens
-        df["Total Number of Tokens"] = num_output_tokens
+        df["Number of Output Tokens"] = num_output_tokens
+        df["Total Number of Tokens"] = num_output_tokens + num_input_tokens
         df["Batch Size"] = batch_size
         df["CPU Core"] = cpu_core
-        df["Serving Method"] = "DeepSpeed-MII"
+        df["Serving Strategy"] = "Optimum"
         for idx_gpus in range(num_gpus):
             df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
                 "memory.total"
@@ -169,5 +171,3 @@ if __name__ == "__main__":
             header=False,
             index=False,
         )
-
-    pipe.destroy()
