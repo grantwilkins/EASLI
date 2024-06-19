@@ -52,6 +52,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--out_dir", type=str, default=".")
     parser.add_argument("--dataset", type=str, default="alpaca")
+    parser.add_argument("--local_rank", type=int, default=0)
 
     args = parser.parse_args()
 
@@ -65,6 +66,7 @@ if __name__ == "__main__":
     out_dir = args.out_dir
     dataset = args.dataset
     csv_file = f"mii-{model_name}-{num_gpus}.csv"
+    local_rank = args.local_rank
 
     prompts = get_prompts(dataset)
 
@@ -120,12 +122,14 @@ if __name__ == "__main__":
         df[f"Used Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
             "memory.used"
         )["gpu"][idx_gpus]["fb_memory_usage"]["used"]
-    df.to_csv(
-        csv_file,
-        mode="a",
-        header=False,
-        index=False,
-    )
+
+    if local_rank == 0:
+        df.to_csv(
+            csv_file,
+            mode="a",
+            header=False,
+            index=False,
+        )
 
     for iteration, (input, output) in enumerate(prompts):
         pandas_handle = PandasHandler()
@@ -167,11 +171,12 @@ if __name__ == "__main__":
             df[f"Used Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
                 "memory.used"
             )["gpu"][idx_gpus]["fb_memory_usage"]["used"]
-        df.to_csv(
-            csv_file,
-            mode="a",
-            header=False,
-            index=False,
-        )
+        if local_rank == 0:
+            df.to_csv(
+                csv_file,
+                mode="a",
+                header=False,
+                index=False,
+            )
 
     pipe.destroy()

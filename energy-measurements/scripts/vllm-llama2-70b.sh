@@ -18,16 +18,16 @@ DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H-%M-%S")
 
 mkdir -p ./$MODEL_NAME/$DATE/$TIME/
-AMDuProfCLI timechart --event power --interval 100 --duration 99999 -o ./$MODEL_NAME/$DATE/$TIME/ python3 vllm.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset alpaca
+AMDuProfCLI timechart --event power --interval 100 --duration 99999 -o ./$MODEL_NAME/$DATE/$TIME/ python3 vllm-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset alpaca
 
 DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H-%M-%S")
 
 mkdir -p ./$MODEL_NAME/$DATE/$TIME/
-AMDuProfCLI timechart --event power --interval 100 --duration 99999 -o ./$MODEL_NAME/$DATE/$TIME/ python3 vllm.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset self-oss
+AMDuProfCLI timechart --event power --interval 100 --duration 99999 -o ./$MODEL_NAME/$DATE/$TIME/ python3 vllm-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset self-oss
 
 DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H-%M-%S")
 
 mkdir -p ./$MODEL_NAME/$DATE/$TIME/
-AMDuProfCLI timechart --event power --interval 100 --duration 99999 -o ./$MODEL_NAME/$DATE/$TIME/ python3 vllm.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset orca
+AMDuProfCLI timechart --event power --interval 100 --duration 99999 -o ./$MODEL_NAME/$DATE/$TIME/ python3 vllm-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset orca

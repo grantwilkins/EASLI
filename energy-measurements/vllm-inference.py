@@ -102,7 +102,10 @@ if __name__ == "__main__":
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
         pipeline_core = find_current_cpu_core()
         ctx.record(tag="model load")
-        llm = LLM(hf_name, tensor_parallel_size=2)
+        if num_gpus == 1:
+            llm = LLM(hf_name)
+        else:
+            llm = LLM(hf_name, tensor_parallel_size=2)
 
     df = pandas_handle.get_dataframe()
     df["Number of Input Tokens"] = 0
