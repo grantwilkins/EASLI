@@ -147,31 +147,32 @@ if __name__ == "__main__":
                 temperature=0.7,
                 top_k=50,
             )
-            llm_output = response[0]
-        input_tokens = tokenizer.encode(input)
-        num_input_tokens = len(input_tokens)
-        output_tokens = tokenizer.encode(llm_output)
-        num_output_tokens = len(output_tokens)
-        df = pandas_handle.get_dataframe()
-        df["Number of Input Tokens"] = num_input_tokens
-        df["Iteration"] = iteration
-        df["Model Name"] = model_name
-        df["Number of GPUs"] = num_gpus
-        df["Prompt"] = input[:10].strip()
-        df["Number of Output Tokens"] = num_output_tokens - num_input_tokens
-        df["Total Number of Tokens"] = num_output_tokens
-        df["Batch Size"] = batch_size
-        df["CPU Core"] = cpu_core
-        df["Serving Method"] = "DeepSpeed-MII"
-        df["Dataset"] = dataset
-        for idx_gpus in range(num_gpus):
-            df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
-                "memory.total"
-            )["gpu"][idx_gpus]["fb_memory_usage"]["total"]
-            df[f"Used Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
-                "memory.used"
-            )["gpu"][idx_gpus]["fb_memory_usage"]["used"]
+            if local_rank == 0:
+                llm_output = response[0]
         if local_rank == 0:
+            input_tokens = tokenizer.encode(input)
+            num_input_tokens = len(input_tokens)
+            output_tokens = tokenizer.encode(llm_output)
+            num_output_tokens = len(output_tokens)
+            df = pandas_handle.get_dataframe()
+            df["Number of Input Tokens"] = num_input_tokens
+            df["Iteration"] = iteration
+            df["Model Name"] = model_name
+            df["Number of GPUs"] = num_gpus
+            df["Prompt"] = input[:10].strip()
+            df["Number of Output Tokens"] = num_output_tokens - num_input_tokens
+            df["Total Number of Tokens"] = num_output_tokens
+            df["Batch Size"] = batch_size
+            df["CPU Core"] = cpu_core
+            df["Serving Method"] = "DeepSpeed-MII"
+            df["Dataset"] = dataset
+            for idx_gpus in range(num_gpus):
+                df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
+                    "memory.total"
+                )["gpu"][idx_gpus]["fb_memory_usage"]["total"]
+                df[f"Used Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
+                    "memory.used"
+                )["gpu"][idx_gpus]["fb_memory_usage"]["used"]
             df.to_csv(
                 csv_file,
                 mode="a",
