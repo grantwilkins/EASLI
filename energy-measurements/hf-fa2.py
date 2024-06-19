@@ -58,6 +58,7 @@ def tokenizer_pipeline(
         model=model_name,
         torch_dtype=torch.bfloat16,
         device_map="auto",
+        attn_implementation="flash_attention_2",
     )
     return pipe, tokenizer, (tokenizer_cpu_core, model_cpu_core)
 
@@ -143,6 +144,8 @@ if __name__ == "__main__":
     df["Number of Output Tokens"] = 0
     df["Batch Size"] = batch_size
     df["CPU Core"] = [tokenizer_core, pipeline_core]
+    df["Serving Strategy"] = "Flash-Attention-2"
+    df["Dataset"] = dataset
     for idx_gpus in range(num_gpus):
         df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
             "memory.total"
@@ -186,7 +189,8 @@ if __name__ == "__main__":
         df["Total Number of Tokens"] = num_output_tokens
         df["Batch Size"] = batch_size
         df["CPU Core"] = cpu_core
-        df["Serving Method"] = "HF Key-Value"
+        df["Serving Method"] = "Flash-Attention-2"
+        df["Dataset"] = dataset
         for idx_gpus in range(num_gpus):
             df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
                 "memory.total"

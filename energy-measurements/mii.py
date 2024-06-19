@@ -58,7 +58,7 @@ if __name__ == "__main__":
     todays_date = datetime.date.today().strftime("%Y-%m-%d")
     num_gpus = torch.cuda.device_count()
     hf_name = args.hf_name
-    model_name = hf_name.split("/")[1]
+    model_name = hf_name.split("--")[-1]
     batch_size = args.batch_size
     out_dir = args.out_dir
     dataset = args.dataset
@@ -110,6 +110,7 @@ if __name__ == "__main__":
     df["Batch Size"] = batch_size
     df["CPU Core"] = [tokenizer_core, pipeline_core]
     df["Serving Method"] = "DeepSpeed-MII"
+    df["Dataset"] = dataset
     for idx_gpus in range(num_gpus):
         df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
             "memory.total"
@@ -156,6 +157,7 @@ if __name__ == "__main__":
         df["Batch Size"] = batch_size
         df["CPU Core"] = cpu_core
         df["Serving Method"] = "DeepSpeed-MII"
+        df["Dataset"] = dataset
         for idx_gpus in range(num_gpus):
             df[f"Total Memory {idx_gpus}"] = nvidia_smi.getInstance().DeviceQuery(
                 "memory.total"
