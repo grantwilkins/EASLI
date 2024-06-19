@@ -59,6 +59,8 @@ if __name__ == "__main__":
     num_gpus = torch.cuda.device_count()
     hf_name = args.hf_name
     model_name = hf_name.split("--")[-1]
+    model_name = model_name.split("/")[0]
+    tokenizer_name = f"meta-llama/{model_name}"
     batch_size = args.batch_size
     out_dir = args.out_dir
     dataset = args.dataset
@@ -95,10 +97,10 @@ if __name__ == "__main__":
         start_tag="tokenizer",
     ) as ctx:
         tokenizer_core = find_current_cpu_core()
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
         pipeline_core = find_current_cpu_core()
         ctx.record(tag="pipeline load")
-        pipe = mii.pipeline(model_name)
+        pipe = mii.pipeline(hf_name)
 
     df = pandas_handle.get_dataframe()
     df["Number of Input Tokens"] = 0

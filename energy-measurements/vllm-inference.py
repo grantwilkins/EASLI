@@ -61,6 +61,7 @@ if __name__ == "__main__":
     hf_name = args.hf_name
     model_name = hf_name.split("--")[-1]
     model_name = model_name.split("/")[0]
+    tokenizer_name = f"meta-llama/{model_name}"
     print(model_name)
     batch_size = args.batch_size
     out_dir = args.out_dir
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     ) as ctx:
         tokenizer_core = find_current_cpu_core()
         model_name = "meta-llama/Llama-2-7b-chat-hf"
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
         pipeline_core = find_current_cpu_core()
         ctx.record(tag="model load")
         llm = LLM(hf_name)

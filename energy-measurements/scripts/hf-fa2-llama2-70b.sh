@@ -12,6 +12,9 @@ MODEL_NAME="llama2-70b"
 module load amd-uprof
 cd /home/ac.gwilkins/EASLI/energy-measurements/
 
+conda activate hf-fa2
+
+
 DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H-%M-%S")
 

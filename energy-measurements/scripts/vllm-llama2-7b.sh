@@ -12,6 +12,8 @@ MODEL_NAME="llama2-7b"
 module load amd-uprof
 cd /home/ac.gwilkins/EASLI/energy-measurements/
 
+conda activate vllm
+
 DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H-%M-%S")
 
