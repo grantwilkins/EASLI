@@ -1,9 +1,9 @@
 job:
   date: 2024-06-19
-  start_time: 03-01-57
+  start_time: 04-38-59
   details:
-    model_name: Llama-2-7b-chat-hf
+    model_name: Llama-2-70b-chat-hf
     batch_size: 32
-    hf_name: /lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/
-    num_gpus: 1
+    hf_name: /lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-70b-chat-hf/snapshots/e9149a12809580e8602995856f8098ce973d1080
+    num_gpus: 2
     dataset: alpaca
