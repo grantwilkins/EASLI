@@ -9,13 +9,10 @@ import argparse
 import datetime
 import pandas as pd
 from pynvml.smi import nvidia_smi
-import os
 import psutil
-import time
-import numpy as np
-from scipy import stats
 import subprocess
 from datasets import load_dataset
+import random
 
 
 def get_prompts(dataset_name: str) -> list[tuple[str, str]]:
@@ -109,6 +106,7 @@ if __name__ == "__main__":
     csv_file = f"hfkv-{model_name}-{num_gpus}.csv"
 
     prompts = get_prompts(dataset)
+    prompts = random.sample(prompts, 1000)
 
     pandas_handle = PandasHandler()
     if out_dir == ".":

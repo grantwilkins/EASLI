@@ -17,6 +17,7 @@ from scipy import stats
 import subprocess
 from datasets import load_dataset
 import mii
+import random
 
 
 def get_prompts(dataset_name: str) -> list[tuple[str, str]]:
@@ -69,6 +70,7 @@ if __name__ == "__main__":
     local_rank = args.local_rank
 
     prompts = get_prompts(dataset)
+    prompts = random.sample(prompts, 1000)
 
     pandas_handle = PandasHandler()
     if out_dir == ".":
