@@ -17,6 +17,7 @@ from scipy import stats
 import subprocess
 from vllm import LLM, SamplingParams
 from datasets import load_dataset
+import random
 
 
 def find_current_cpu_core():
@@ -58,9 +59,10 @@ if __name__ == "__main__":
     todays_date = datetime.date.today().strftime("%Y-%m-%d")
     num_gpus = torch.cuda.device_count()
     hf_name = args.hf_name
-    model_name = hf_name.split("/")[-1]
+    model_name = hf_name.split("--")[-1]
+    model_name = model_name.split("/")[0]
+    print(model_name)
     batch_size = args.batch_size
-    system_name = args.system_name
     out_dir = args.out_dir
     dataset = args.dataset
     csv_file = f"vllm-{model_name}-{num_gpus}.csv"
@@ -88,6 +90,7 @@ if __name__ == "__main__":
         file.write(f"    dataset: {dataset}\n")
 
     prompts = get_prompts(dataset)
+    prompts = random.sample(prompts, 1000)
 
     with EnergyContext(
         handler=pandas_handle,
@@ -95,10 +98,11 @@ if __name__ == "__main__":
         start_tag="tokenizer",
     ) as ctx:
         tokenizer_core = find_current_cpu_core()
+        model_name = "meta-llama/Llama-2-7b-chat-hf"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         pipeline_core = find_current_cpu_core()
         ctx.record(tag="model load")
-        llm = LLM(model_name)
+        llm = LLM(hf_name)
 
     df = pandas_handle.get_dataframe()
     df["Number of Input Tokens"] = 0
@@ -119,7 +123,7 @@ if __name__ == "__main__":
             "memory.used"
         )["gpu"][idx_gpus]["fb_memory_usage"]["used"]
     df.to_csv(
-        f"{model_name}-{args.system_name}-{num_gpus}.csv",
+        csv_file,
         mode="a",
         header=False,
         index=False,
@@ -137,11 +141,11 @@ if __name__ == "__main__":
             sampling_params = SamplingParams(
                 temperature=0.7, top_k=50, top_p=0.95, max_tokens=token_limit
             )
-            llm_output = llm.generate(input, sampling_params)
+            llm_output = llm.generate([input], sampling_params)
 
         input_tokens = tokenizer.encode(input)
         num_input_tokens = len(input_tokens)
-        output_tokens = tokenizer.encode(llm_output)
+        output_tokens = tokenizer.encode(llm_output[0].outputs[0].text)
         num_output_tokens = len(output_tokens)
         df = pandas_handle.get_dataframe()
         df["Number of Input Tokens"] = num_input_tokens
