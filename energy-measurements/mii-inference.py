@@ -152,7 +152,7 @@ if __name__ == "__main__":
         if local_rank == 0:
             input_tokens = tokenizer.encode(input)
             num_input_tokens = len(input_tokens)
-            output_tokens = tokenizer.encode(llm_output)
+            output_tokens = tokenizer.encode(llm_output.generated_text)
             num_output_tokens = len(output_tokens)
             df = pandas_handle.get_dataframe()
             df["Number of Input Tokens"] = num_input_tokens
