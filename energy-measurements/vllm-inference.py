@@ -62,7 +62,6 @@ if __name__ == "__main__":
     model_name = hf_name.split("--")[-1]
     model_name = model_name.split("/")[0]
     tokenizer_name = f"meta-llama/{model_name}"
-    print(model_name)
     batch_size = args.batch_size
     out_dir = args.out_dir
     dataset = args.dataset

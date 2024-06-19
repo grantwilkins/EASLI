@@ -53,12 +53,19 @@ def tokenizer_pipeline(
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model_cpu_core = find_current_cpu_core()
     ctx.record(tag="model load")
-    pipe = pipeline(
-        "text-generation",
-        model=model_name,
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
         torch_dtype=torch.bfloat16,
         device_map="auto",
+        trust_remote_code=True,
         attn_implementation="flash_attention_2",
+    )
+    pipe = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
     )
     return pipe, tokenizer, (tokenizer_cpu_core, model_cpu_core)
 
@@ -171,7 +178,7 @@ if __name__ == "__main__":
             token_limit = len(tokenizer.encode(output))
             llm_output = run_inference(
                 pipe=pipe,
-                max_new_tokens=token_limit,
+                num_tokens=token_limit,
                 prompt=input,
                 batch_size=batch_size,
             )
