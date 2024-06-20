@@ -1,6 +1,6 @@
 job:
-  date: 2024-06-20
-  start_time: 10-13-12
+  date: 2024-06-19
+  start_time: 16-58-20
   details:
     model_name: Llama-2-7b-chat-hf
     batch_size: 32

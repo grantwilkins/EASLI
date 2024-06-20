@@ -10,7 +10,7 @@
 
 HF_NAME=/lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-13b-chat-hf/snapshots/c2f3ec81aac798ae26dcc57799a994dfbf521496
 MODEL_NAME=llama2-13b
-module load amd-uprof
+module load amd-uprof anaconda3/2023-01-11
 cd /home/ac.gwilkins/EASLI/energy-measurements/
 
 conda activate mii
@@ -20,16 +20,16 @@ DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H-%M-%S")
 
 mkdir -p ./$MODEL_NAME/$DATE/$TIME/
-deepspeed --num_gpus 1 mii-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset alpaca
+deepspeed --num_gpus 1 --master_port 29501 mii-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset alpaca
 
 DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H-%M-%S")
 
 mkdir -p ./$MODEL_NAME/$DATE/$TIME/
-deepspeed --num_gpus 1 mii-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset self-oss
+deepspeed --num_gpus 1 --master_port 29501 mii-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset self-oss
 
 DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H-%M-%S")
 
 mkdir -p ./$MODEL_NAME/$DATE/$TIME/
-deepspeed --num_gpus 1 mii-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset orca
+deepspeed --num_gpus 1 --master_port 29501 mii-inference.py --out_dir ./$MODEL_NAME/$DATE/$TIME --hf_name $HF_NAME --dataset orca

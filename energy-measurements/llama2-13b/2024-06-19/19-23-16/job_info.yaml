@@ -1,0 +1,9 @@
+job:
+  date: 2024-06-19
+  start_time: 19-23-16
+  details:
+    model_name: Llama-2-13b-chat-hf
+    batch_size: 32
+    hf_name: /lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-13b-chat-hf/snapshots/c2f3ec81aac798ae26dcc57799a994dfbf521496
+    num_gpus: 1
+    dataset: orca

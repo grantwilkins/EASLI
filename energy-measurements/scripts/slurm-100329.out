@@ -1,0 +1,120 @@
+environment: line 5: __conda_exe: command not found
+environment: line 5: __conda_exe: command not found
+[2024-06-19 16:21:08,490] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/transformers/utils/hub.py:124: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.3
+[93m [WARNING] [0m using untested triton version (2.3.1), only 1.0.0 is known to be compatible
+[2024-06-19 16:21:39,553] [WARNING] [runner.py:202:fetch_hostfile] Unable to find hostfile, will proceed with training with local resources only.
+Detected CUDA_VISIBLE_DEVICES=0 but ignoring it because one or several of --include/--exclude/--num_gpus/--num_nodes cl args were used. If you want to use CUDA_VISIBLE_DEVICES don't pass any of these arguments to deepspeed.
+[2024-06-19 16:21:39,553] [INFO] [runner.py:568:main] cmd = /home/ac.gwilkins/.conda/envs/mii/bin/python -u -m deepspeed.launcher.launch --world_info=eyJsb2NhbGhvc3QiOiBbMF19 --master_addr=127.0.0.1 --master_port=29500 --enable_each_rank_log=None mii-inference.py --out_dir ./llama2-7b/2024-06-19/16-19-24 --hf_name /lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/ --dataset alpaca
+[2024-06-19 16:22:42,165] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.3
+[93m [WARNING] [0m using untested triton version (2.3.1), only 1.0.0 is known to be compatible
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/transformers/utils/hub.py:124: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[2024-06-19 16:23:01,571] [INFO] [launch.py:146:main] WORLD INFO DICT: {'localhost': [0]}
+[2024-06-19 16:23:01,571] [INFO] [launch.py:152:main] nnodes=1, num_local_procs=1, node_rank=0
+[2024-06-19 16:23:01,571] [INFO] [launch.py:163:main] global_rank_mapping=defaultdict(<class 'list'>, {'localhost': [0]})
+[2024-06-19 16:23:01,571] [INFO] [launch.py:164:main] dist_world_size=1
+[2024-06-19 16:23:01,571] [INFO] [launch.py:168:main] Setting CUDA_VISIBLE_DEVICES=0
+[2024-06-19 16:23:01,572] [INFO] [launch.py:256:main] process 1647649 spawned with command: ['/home/ac.gwilkins/.conda/envs/mii/bin/python', '-u', 'mii-inference.py', '--local_rank=0', '--out_dir', './llama2-7b/2024-06-19/16-19-24', '--hf_name', '/lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/', '--dataset', 'alpaca']
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/transformers/utils/hub.py:124: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[2024-06-19 16:25:15,980] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.3
+[93m [WARNING] [0m using untested triton version (2.3.1), only 1.0.0 is known to be compatible
+[2024-06-19 16:25:51,816] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-19 16:25:51,817] [INFO] [comm.py:668:init_distributed] Initializing TorchBackend in DeepSpeed with backend nccl
+[2024-06-19 16:25:52,063] [INFO] [engine_v2.py:82:__init__] Building model...
+Using /gpfs/fs1/home/ac.gwilkins/.cache/torch_extensions/py310_cu121 as PyTorch extensions root...
+Detected CUDA files, patching ldflags
+Emitting ninja build file /gpfs/fs1/home/ac.gwilkins/.cache/torch_extensions/py310_cu121/inference_core_ops/build.ninja...
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/torch/utils/cpp_extension.py:1967: UserWarning: TORCH_CUDA_ARCH_LIST is not set, all archs for visible cards are included for compilation. 
+If this is not desired, please set os.environ['TORCH_CUDA_ARCH_LIST'].
+  warnings.warn(
+Building extension module inference_core_ops...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module inference_core_ops...
+Time to load inference_core_ops op: 8.38485050201416 seconds
+Using /gpfs/fs1/home/ac.gwilkins/.cache/torch_extensions/py310_cu121 as PyTorch extensions root...
+Detected CUDA files, patching ldflags
+Emitting ninja build file /gpfs/fs1/home/ac.gwilkins/.cache/torch_extensions/py310_cu121/ragged_device_ops/build.ninja...
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/torch/utils/cpp_extension.py:1967: UserWarning: TORCH_CUDA_ARCH_LIST is not set, all archs for visible cards are included for compilation. 
+If this is not desired, please set os.environ['TORCH_CUDA_ARCH_LIST'].
+  warnings.warn(
+Building extension module ragged_device_ops...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module ragged_device_ops...
+Time to load ragged_device_ops op: 2.784745931625366 seconds
+Using /gpfs/fs1/home/ac.gwilkins/.cache/torch_extensions/py310_cu121 as PyTorch extensions root...
+Detected CUDA files, patching ldflags
+Emitting ninja build file /gpfs/fs1/home/ac.gwilkins/.cache/torch_extensions/py310_cu121/ragged_ops/build.ninja...
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/torch/utils/cpp_extension.py:1967: UserWarning: TORCH_CUDA_ARCH_LIST is not set, all archs for visible cards are included for compilation. 
+If this is not desired, please set os.environ['TORCH_CUDA_ARCH_LIST'].
+  warnings.warn(
+Building extension module ragged_ops...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module ragged_ops...
+Time to load ragged_ops op: 0.5511059761047363 seconds
+[2024-06-19 16:26:04,614] [INFO] [huggingface_engine.py:109:parameters] Loading checkpoint: /lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/model-00002-of-00002.safetensors
+[2024-06-19 16:26:17,096] [INFO] [huggingface_engine.py:109:parameters] Loading checkpoint: /lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/model-00001-of-00002.safetensors
+[2024-06-19 16:27:09,643] [INFO] [engine_v2.py:84:__init__] Model built.
+[2024-06-19 16:27:10,089] [INFO] [kv_cache.py:135:__init__] Allocating KV-cache 0 with shape: (32, 2080, 64, 2, 32, 128) consisting of 2080 blocks.
+[2024-06-19 16:58:18,738] [INFO] [launch.py:351:main] Process 1647649 exits successfully.
+[2024-06-19 16:59:28,732] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/transformers/utils/hub.py:124: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.3
+[93m [WARNING] [0m using untested triton version (2.3.1), only 1.0.0 is known to be compatible
+[2024-06-19 16:59:53,921] [WARNING] [runner.py:202:fetch_hostfile] Unable to find hostfile, will proceed with training with local resources only.
+Detected CUDA_VISIBLE_DEVICES=0 but ignoring it because one or several of --include/--exclude/--num_gpus/--num_nodes cl args were used. If you want to use CUDA_VISIBLE_DEVICES don't pass any of these arguments to deepspeed.
+[2024-06-19 16:59:53,922] [INFO] [runner.py:568:main] cmd = /home/ac.gwilkins/.conda/envs/mii/bin/python -u -m deepspeed.launcher.launch --world_info=eyJsb2NhbGhvc3QiOiBbMF19 --master_addr=127.0.0.1 --master_port=29500 --enable_each_rank_log=None mii-inference.py --out_dir ./llama2-7b/2024-06-19/16-58-20 --hf_name /lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/ --dataset self-oss
+[2024-06-19 17:01:11,499] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.3
+[93m [WARNING] [0m using untested triton version (2.3.1), only 1.0.0 is known to be compatible
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/transformers/utils/hub.py:124: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[2024-06-19 17:01:41,900] [INFO] [launch.py:146:main] WORLD INFO DICT: {'localhost': [0]}
+[2024-06-19 17:01:41,901] [INFO] [launch.py:152:main] nnodes=1, num_local_procs=1, node_rank=0
+[2024-06-19 17:01:41,901] [INFO] [launch.py:163:main] global_rank_mapping=defaultdict(<class 'list'>, {'localhost': [0]})
+[2024-06-19 17:01:41,901] [INFO] [launch.py:164:main] dist_world_size=1
+[2024-06-19 17:01:41,901] [INFO] [launch.py:168:main] Setting CUDA_VISIBLE_DEVICES=0
+[2024-06-19 17:01:41,903] [INFO] [launch.py:256:main] process 1683782 spawned with command: ['/home/ac.gwilkins/.conda/envs/mii/bin/python', '-u', 'mii-inference.py', '--local_rank=0', '--out_dir', './llama2-7b/2024-06-19/16-58-20', '--hf_name', '/lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/', '--dataset', 'self-oss']
+/home/ac.gwilkins/.conda/envs/mii/lib/python3.10/site-packages/transformers/utils/hub.py:124: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[2024-06-19 17:04:16,838] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.3
+[93m [WARNING] [0m using untested triton version (2.3.1), only 1.0.0 is known to be compatible
+[2024-06-19 17:04:43,676] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-19 17:04:43,676] [INFO] [comm.py:668:init_distributed] Initializing TorchBackend in DeepSpeed with backend nccl
+[2024-06-19 17:04:43,744] [INFO] [engine_v2.py:82:__init__] Building model...
+Using /gpfs/fs1/home/ac.gwilkins/.cache/torch_extensions/py310_cu121 as PyTorch extensions root...
+slurmstepd: error: *** JOB 100329 ON gpu5 CANCELLED AT 2024-06-19T18:25:40 ***

@@ -1,0 +1,13 @@
+environment: line 5: __conda_exe: command not found
+Traceback (most recent call last):
+  File "/home/ac.gwilkins/.conda/envs/alpa-inference/bin/deepspeed", line 3, in <module>
+    from deepspeed.launcher.runner import main
+ModuleNotFoundError: No module named 'deepspeed'
+Traceback (most recent call last):
+  File "/home/ac.gwilkins/.conda/envs/alpa-inference/bin/deepspeed", line 3, in <module>
+    from deepspeed.launcher.runner import main
+ModuleNotFoundError: No module named 'deepspeed'
+Traceback (most recent call last):
+  File "/home/ac.gwilkins/.conda/envs/alpa-inference/bin/deepspeed", line 3, in <module>
+    from deepspeed.launcher.runner import main
+ModuleNotFoundError: No module named 'deepspeed'

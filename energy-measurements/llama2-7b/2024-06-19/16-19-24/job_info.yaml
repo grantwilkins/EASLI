@@ -1,9 +1,9 @@
 job:
-  date: 2024-06-20
-  start_time: 10-13-12
+  date: 2024-06-19
+  start_time: 16-19-24
   details:
     model_name: Llama-2-7b-chat-hf
     batch_size: 32
     hf_name: /lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/
     num_gpus: 1
-    dataset: self-oss
+    dataset: alpaca

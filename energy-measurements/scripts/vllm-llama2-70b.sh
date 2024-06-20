@@ -10,7 +10,7 @@
 
 HF_NAME=/lcrc/project/ECP-EZ/ac.gwilkins/models--meta-llama--Llama-2-70b-chat-hf/snapshots/e9149a12809580e8602995856f8098ce973d1080
 MODEL_NAME=llama2-70b
-module load amd-uprof
+module load amd-uprof anaconda3/2023-01-11
 cd /home/ac.gwilkins/EASLI/energy-measurements/
 
 conda activate vllm
